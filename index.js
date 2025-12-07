@@ -4,8 +4,6 @@ const { MongoClient, ServerApiVersion } = require("mongodb");
 
 const app = express();
 const port = 5000;
-
-// ENABLE CORS
 app.use(cors());
 app.use(express.json());
 
@@ -22,7 +20,6 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // CONNECT to DB
     //await client.connect();
 
     const db = client.db("Ticket-db");
