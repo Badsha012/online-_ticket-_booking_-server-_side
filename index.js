@@ -1,11 +1,16 @@
-require('dotenv').config();
 const express = require('express');
+const cors = require("cors");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = 5000;
 
-const uri = process.env.MONGO_URI;
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// MongoDB Connection
+const uri = "mongodb+srv://Ticket-db:likpHHxHMFOMHlJt@cluster0.cyspe14.mongodb.net/?appName=Cluster0";
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -15,29 +20,24 @@ const client = new MongoClient(uri, {
   }
 });
 
-app.get('/', (req, res) => {
-  res.send('Server is Running!')
-})
-
 async function run() {
   try {
-    //await client.connect();
-
     const db = client.db('Ticket-db');
     const ticketCollection = db.collection('Tickets');
 
+    // GET ALL TICKETS
     app.get('/Tickets', async (req, res) => {
-      const result = await ticketCollection.find().toArray();
+      const result = await ticketCollection.find().toArray(); // FIXED
       res.send(result);
     });
 
-    console.log("MongoDB Connected!");
-  } catch (error) {
-    console.log(error);
-  }
+    console.log("Connected to MongoDB");
+  } finally {}
 }
-run();
 
+run().catch(console.dir);
+
+// Server Start
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
