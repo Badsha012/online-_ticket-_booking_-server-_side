@@ -21,7 +21,7 @@ async function run() {
   try {
 
     // MUST CONNECT HERE
-    await client.connect();
+    //await client.connect();
 
     const db = client.db('Ticket-db')
     const ticketCollection = db.collection('Tickets')
