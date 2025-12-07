@@ -1,16 +1,13 @@
-const express = require('express');
-const cors = require("cors");
+const express = require('express')
 const { MongoClient, ServerApiVersion } = require("mongodb");
+const app = express()
+const port = 5000
 
-const app = express();
-const port = 5000;
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// MongoDB Connection
 const uri = "mongodb+srv://Ticket-db:likpHHxHMFOMHlJt@cluster0.cyspe14.mongodb.net/?appName=Cluster0";
+
+app.get('/', (req, res) => {
+  res.send('Hello World!')
+})
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -22,22 +19,28 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    const db = client.db('Ticket-db');
-    const ticketCollection = db.collection('Tickets');
 
-    // GET ALL TICKETS
+    // MUST CONNECT HERE
+    await client.connect();
+
+    const db = client.db('Ticket-db')
+    const ticketCollection = db.collection('Tickets')
+
+    // GET ALL TICKETS API
     app.get('/Tickets', async (req, res) => {
       const result = await ticketCollection.find().toArray(); // FIXED
-      res.send(result);
-    });
+      res.send(result)
+    })
 
-    console.log("Connected to MongoDB");
-  } finally {}
+    await client.db("admin").command({ ping: 1 });
+    console.log("Connected to MongoDB Successfully!");
+
+  } catch (error) {
+    console.log(error);
+  }
 }
-
 run().catch(console.dir);
 
-// Server Start
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+  console.log(`Server running on port ${port}`)
+})
