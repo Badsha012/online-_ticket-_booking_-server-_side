@@ -23,7 +23,7 @@ async function run() {
 
     const db = client.db("Ticket-db");
     const ticketCollection = db.collection("Tickets");
-    const bookingsCollection = db.collection("Bookings"); // ✅ add this
+    const bookingsCollection = db.collection("Booking"); // ✅ add this
 
     // GET all tickets
     app.get("/tickets", async (req, res) => {
