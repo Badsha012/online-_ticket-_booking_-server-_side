@@ -39,8 +39,14 @@ async function run() {
       res.send(result);
     });
 
+    //get all
+    app.get("/booking", async(req,res)=>{
+      const bookresult=await bookingsCollection.find().toArray();
+      res.send(bookresult);
+    });
+
     // PATCH booking status
-    app.patch("/bookings/:id", async (req, res) => {
+    app.patch("/booking/:id", async (req, res) => {
       const id = req.params.id;
       const { status } = req.body;
       const result = await bookingsCollection.updateOne(
