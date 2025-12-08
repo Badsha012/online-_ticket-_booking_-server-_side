@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const app = express();
 const port = 5000;
@@ -20,19 +20,31 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    //await client.connect();
+    // ✅ Mongo Connect
+    await client.connect();
 
     const db = client.db("Ticket-db");
     const ticketCollection = db.collection("Tickets");
 
-    // GET All Tickets
+    // ✅ GET All Tickets
     app.get("/Tickets", async (req, res) => {
-      try {
-        const result = await ticketCollection.find().toArray();
-        res.send(result);
-      } catch (err) {
-        res.status(500).send({ error: "Internal Server Error" });
+      const result = await ticketCollection.find().toArray();
+      res.send(result);
+    });
+
+    // ✅ ✅ ✅ GET Single Ticket by ID (THIS IS YOUR FIX)
+    app.get("/Tickets/:id", async (req, res) => {
+      const id = req.params.id;
+
+      const result = await ticketCollection.findOne({
+        _id: new ObjectId(id),
+      });
+
+      if (!result) {
+        return res.status(404).send({ message: "Ticket not found" });
       }
+
+      res.send(result);
     });
 
     console.log("MongoDB Connected Successfully!");
