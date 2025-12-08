@@ -9,7 +9,6 @@ app.use(express.json());
 
 // MongoDB URI
 const uri = "mongodb+srv://Ticket-db:likpHHxHMFOMHlJt@cluster0.cyspe14.mongodb.net/?appName=Cluster0";
-
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -20,30 +19,34 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // ✅ Mongo Connect
-   // await client.connect();
+    //await client.connect(); // ✅ uncomment this
 
     const db = client.db("Ticket-db");
     const ticketCollection = db.collection("Tickets");
+    const bookingsCollection = db.collection("Bookings"); // ✅ add this
 
-    // ✅ GET All Tickets
-    app.get("/Tickets", async (req, res) => {
+    // GET all tickets
+    app.get("/tickets", async (req, res) => {
       const result = await ticketCollection.find().toArray();
       res.send(result);
     });
 
-    // ✅ ✅ ✅ GET Single Ticket by ID (THIS IS YOUR FIX)
-    app.get("/Tickets/:id", async (req, res) => {
+    // GET single ticket by id
+    app.get("/tickets/:id", async (req, res) => {
       const id = req.params.id;
+      const result = await ticketCollection.findOne({ _id: new ObjectId(id) });
+      if (!result) return res.status(404).send({ message: "Ticket not found" });
+      res.send(result);
+    });
 
-      const result = await ticketCollection.findOne({
-        _id: new ObjectId(id),
-      });
-
-      if (!result) {
-        return res.status(404).send({ message: "Ticket not found" });
-      }
-
+    // PATCH booking status
+    app.patch("/bookings/:id", async (req, res) => {
+      const id = req.params.id;
+      const { status } = req.body;
+      const result = await bookingsCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { status } }
+      );
       res.send(result);
     });
 
@@ -55,12 +58,12 @@ async function run() {
 
 run();
 
-// DEFAULT ROUTE
+// Default route
 app.get("/", (req, res) => {
   res.send("Server is Running!");
 });
 
-// START SERVER
+// Start server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
