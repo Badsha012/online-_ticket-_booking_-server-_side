@@ -21,7 +21,9 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // await client.connect();
+    // ✅ MUST CONNECT
+    //await client.connect();
+    console.log("✅ MongoDB Connected Successfully!");
 
     const db = client.db("Ticket-db");
     const ticketCollection = db.collection("Tickets");
@@ -48,10 +50,22 @@ async function run() {
       res.send(result);
     });
 
-    // 🔥🔥🔥 MOST IMPORTANT → POST BOOKING API 
+    // ✅ POST booking
     app.post("/booking", async (req, res) => {
       const bookingData = req.body;
       const result = await bookingsCollection.insertOne(bookingData);
+      res.send(result);
+    });
+
+    // ✅ Decrease ticket quantity
+    app.patch("/tickets/:id/decrease", async (req, res) => {
+      const id = req.params.id;
+
+      const result = await ticketCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $inc: { quantity: -1 } }
+      );
+
       res.send(result);
     });
 
@@ -59,27 +73,27 @@ async function run() {
     app.patch("/booking/:id", async (req, res) => {
       const id = req.params.id;
       const { status } = req.body;
+
       const result = await bookingsCollection.updateOne(
         { _id: new ObjectId(id) },
         { $set: { status } }
       );
+
       res.send(result);
     });
-
-    console.log("MongoDB Connected Successfully!");
   } catch (err) {
-    console.error(err);
+    console.error("❌ MongoDB Error:", err);
   }
 }
 
 run();
 
-// Default route
+// ✅ Default route
 app.get("/", (req, res) => {
-  res.send("Server is Running!");
+  res.send("✅ Server is Running!");
 });
 
-// Start server
+// ✅ Start server
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`✅ Server running on port ${port}`);
 });
