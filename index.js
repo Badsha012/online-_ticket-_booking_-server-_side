@@ -21,55 +21,49 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // ✅ MUST CONNECT
-    //await client.connect();
     console.log("✅ MongoDB Connected Successfully!");
 
     const db = client.db("Ticket-db");
     const ticketCollection = db.collection("Tickets");
     const bookingsCollection = db.collection("Booking");
 
-    // ✅ GET all tickets
+    // GET all tickets
     app.get("/tickets", async (req, res) => {
       const result = await ticketCollection.find().toArray();
       res.send(result);
     });
 
-    // ✅ GET single ticket
+    // GET single ticket
     app.get("/tickets/:id", async (req, res) => {
       const id = req.params.id;
-      const result = await ticketCollection.findOne({
-        _id: new ObjectId(id),
-      });
+      const result = await ticketCollection.findOne({ _id: new ObjectId(id) });
       res.send(result);
     });
 
-    // ✅ GET all bookings
+    // GET all bookings
     app.get("/booking", async (req, res) => {
       const result = await bookingsCollection.find().toArray();
       res.send(result);
     });
 
-    // ✅ POST booking
+    // POST booking
     app.post("/booking", async (req, res) => {
       const bookingData = req.body;
       const result = await bookingsCollection.insertOne(bookingData);
       res.send(result);
     });
 
-    // ✅ Decrease ticket quantity
+    // Decrease ticket quantity
     app.patch("/tickets/:id/decrease", async (req, res) => {
       const id = req.params.id;
-
       const result = await ticketCollection.updateOne(
         { _id: new ObjectId(id) },
         { $inc: { quantity: -1 } }
       );
-
       res.send(result);
     });
 
-    // ✅ PATCH booking status
+    // PATCH booking status
     app.patch("/booking/:id", async (req, res) => {
       const id = req.params.id;
       const { status } = req.body;
@@ -81,6 +75,18 @@ async function run() {
 
       res.send(result);
     });
+
+    // ✅ DELETE booking (CORRECT POSITION)
+    app.delete("/booking/:id", async (req, res) => {
+      const id = req.params.id;
+
+      const result = await bookingsCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+
+      res.send(result);
+    });
+
   } catch (err) {
     console.error("❌ MongoDB Error:", err);
   }
@@ -88,22 +94,12 @@ async function run() {
 
 run();
 
-// ✅ Default route
+// Default route
 app.get("/", (req, res) => {
   res.send("✅ Server is Running!");
 });
 
-// ✅ Start server
+// Start server
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
 });
-
-// ✅ DELETE booking
-app.delete("/booking/:id", async (req, res) => {
-  const id = req.params.id;
-  const result = await bookingsCollection.deleteOne({
-    _id: new ObjectId(id),
-  });
-  res.send(result);
-});
-
