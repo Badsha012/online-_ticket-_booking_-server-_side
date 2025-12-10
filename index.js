@@ -97,3 +97,13 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
 });
+
+// ✅ DELETE booking
+app.delete("/booking/:id", async (req, res) => {
+  const id = req.params.id;
+  const result = await bookingsCollection.deleteOne({
+    _id: new ObjectId(id),
+  });
+  res.send(result);
+});
+
